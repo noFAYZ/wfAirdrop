@@ -5,44 +5,41 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/math/SafeMath.sol";
 
-contract MyContract is Pausable, Ownable {
+contract AirdropWF is Pausable, Ownable {
 
     using SafeMath for uint;
-
-
     event Received(address, uint);
+    address payable[] holderAddresses;
+    uint[]  holdersAmount;
 
 
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() {
-        
-    }
+    constructor() {}
 
-    using SafeMath for uint;
-
-
-   function transferEth(address[] memory to, uint256[] memory amount) public {
-   
-       for(uint i=0; i<=to.length ;i++){
-        payable(to[i]).transfer(amount[i]);
-       }
-        
+   function addHolders(address payable[] memory _holders, uint[] memory _amnts) public {    
+        holderAddresses = _holders; 
+        holdersAmount = _amnts;
     }
 
 
     // Distrbute eth in certain amounts to a set of addresses
-    function airDropAmounts(address payable[] memory _addrs, uint[] memory _amnts) public  {
-        require(_addrs.length == _amnts.length);
-        uint n = _addrs.length;
+    function airDropAmounts() public  {
+        require(holderAddresses.length == holdersAmount.length);
+        uint n = holderAddresses.length;
         uint totalAmnts = 0;
+
+
+        uint totalEth = payable(address(this)).balance;
+    
+
         for (uint i = 0; i < n; i++) {
-            totalAmnts += _amnts[i];
+            totalAmnts += holdersAmount[i];
         }
         // Ensure no leftover eth
         uint remainEth = totalAmnts;
         for (uint i = 0; i < n; i++) {
-            _addrs[i].transfer(_amnts[i]);
-            remainEth -= _amnts[i];
+            uint eachEth = (totalEth / 5000) * holdersAmount[i];
+            holderAddresses[i].transfer(eachEth);
+            remainEth -= holdersAmount[i];
         }
     }
 
