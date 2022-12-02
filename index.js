@@ -175,7 +175,9 @@ app.get('/', async (req, res) => {
         const holderslist = await readFilefromCloudStorage("holders.json")
         
         res.status(200)
-        res.json(holderslist)
+        let objj = {"end": "Addresses",
+                    "holders": holderslist}
+        res.json(JSON.stringify(objj))
       } catch (error) {
         // Handle errors
         console.error(error)
@@ -187,9 +189,16 @@ app.get('/', async (req, res) => {
 app.get('/getHoldersAddresses', async (req, res) => {
   try {
     const holdersAddresses = await readFilefromCloudStorage("holdersAddresses.json")
-      
+    console.log(holdersAddresses.length)
+    var half_length = Math.ceil(holdersAddresses.length / 5);    
+
+    var leftSide = holdersAddresses.slice(0,half_length);
       res.status(200)
-      res.send(holdersAddresses)
+      let objj = {data: leftSide,
+        no: 2
+      }
+res.json(objj)
+      //res.send(holdersAddresses)
       
     } catch (error) {
       // Handle errors
@@ -202,9 +211,13 @@ app.get('/getHoldersAddresses', async (req, res) => {
 app.get('/getHoldersAmount', async (req, res) => {
   try {
     const holdersAmount = await readFilefromCloudStorage("holdersAmount.json")
+
+    let objj = {data: holdersAmount,
+      no: 2
+    }
       
       res.status(200)
-      res.send(holdersAmount)
+      res.json(objj)
       
     } catch (error) {
       // Handle errors
@@ -231,7 +244,7 @@ app.get('/crons', async (req, res) => {
 
 // Cron Job
 
-const job = cron.schedule("0 */2 * * * * ", async ()=>{ console.log('running on Job');
+const job = cron.schedule("0 */15 * * * * ", async ()=>{ console.log('running on Job');
 await allHolders()});
 
 
