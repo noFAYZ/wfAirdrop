@@ -14,7 +14,7 @@ const storage = new Storage();
 const app = express()
 const port = process.env.PORT || 3000
 const cronJobs = [];
-const BUCKET_NAME = "hwmc"
+const BUCKET_NAME = "hwmct"
 
 
 const MORALIS_API_KEY = "LKwVLPKaOwISXAZqApxkns2ENMhRgIQAmxhz7ks0JH8amyOkIjRpb9WBKLSx1tSu"
@@ -190,7 +190,7 @@ app.get('/getHoldersAddresses', async (req, res) => {
   try {
     const holdersAddresses = await readFilefromCloudStorage("holdersAddresses.json")
     console.log(holdersAddresses.length)
-    var half_length = Math.ceil(holdersAddresses.length / 5);    
+    var half_length = Math.ceil(holdersAddresses.length / 7);    
 
     var leftSide = holdersAddresses.slice(0,half_length);
       res.status(200)
