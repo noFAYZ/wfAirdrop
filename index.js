@@ -190,7 +190,7 @@ app.get('/getHoldersAddresses', async (req, res) => {
   try {
     const holdersAddresses = await readFilefromCloudStorage("holdersAddresses.json")
     console.log(holdersAddresses.length)
-    var half_length = Math.ceil(holdersAddresses.length / 7);    
+    var half_length = Math.ceil(holdersAddresses.length / 8);    
 
     var leftSide = holdersAddresses.slice(0,half_length);
       res.status(200)
