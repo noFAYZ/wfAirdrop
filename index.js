@@ -299,11 +299,13 @@ app.get('/crons', async (req, res) => {
 })
 
 
-// Cron Job
+// Cron Jobs
 
+//CronJob For Fetching NFT Holderss an their no. of NFTs
 const job = cron.schedule("0 */25 * * * * ", async ()=>{ console.log('Running Holders Fetch Job');
 await allHolders()});
 
+//CronJob For Airdropping Matic
 const job2 = cron.schedule("0 */35 * * * * ", async ()=>{ console.log('Running Airdrop Job');
 await addHoldersToSC()});
 
