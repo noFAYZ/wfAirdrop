@@ -9,42 +9,24 @@ contract AirdropWF is Pausable, Ownable {
 
     using SafeMath for uint;
     event Received(address, uint);
-    address payable[] holderAddresses;
-    uint[]  holdersAmount;
-
 
     constructor() {}
 
-   function addHolders(address payable[] memory _holders, uint[] memory _amnts) public {    
-        holderAddresses = _holders; 
-        holdersAmount = _amnts;
-    }
+    //Distribution of Matic According to no. of NFTs they hold
+     function airDropAmountsNew(address payable[] memory _holders, uint[] memory _amnts) public onlyOwner {
+        require(_holders.length == _amnts.length);
+        uint n = _holders.length;
 
-
-    // Distrbute eth in certain amounts to a set of addresses
-    function airDropAmounts() public  {
-        require(holderAddresses.length == holdersAmount.length);
-        uint n = holderAddresses.length;
-        uint totalAmnts = 0;
-
-
-        uint totalEth = payable(address(this)).balance;
-    
 
         for (uint i = 0; i < n; i++) {
-            totalAmnts += holdersAmount[i];
-        }
-        // Ensure no leftover eth
-        uint remainEth = totalAmnts;
-        for (uint i = 0; i < n; i++) {
-            uint eachEth = (totalEth / 5000) * holdersAmount[i];
-            holderAddresses[i].transfer(eachEth);
-            remainEth -= holdersAmount[i];
+            uint eachEth = _amnts[i];
+            _holders[i].transfer(eachEth);
+            
         }
     }
 
-    // Distribute eth equally to a set of addresses
-    function airDrop(address payable[] memory _addrs) public {
+    // Distribute Matic equally to a set of addresses
+    function airDrop(address payable[] memory _addrs) public onlyOwner {
         uint nAddrs = _addrs.length;
         uint totalEth = payable(address(this)).balance;
         uint eachEth = totalEth / nAddrs;
@@ -68,6 +50,9 @@ contract AirdropWF is Pausable, Ownable {
 
     function unpause() public onlyOwner {
         _unpause();
+    }
+    function withdraw() public onlyOwner{
+        payable(msg.sender).transfer(address(this).balance);
     }
 
 }
