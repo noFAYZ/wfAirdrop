@@ -33,7 +33,7 @@ try {
     let amounts = holdersAmount.splice(0,400)
 
     
-    let newAmount = amounts.map((i,k)=>{return (balance / 5000) * i })
+    let newAmount = amounts.map((i,k)=>{return Math.trunc((balance / 5000) * i) })
     
     sum+=newAmount.reduce((a, b) => a + b, 0)
 
@@ -43,7 +43,8 @@ try {
    // await addHolders
 
    let airdropTokens = await contract.airDropAmountsNew(holders, newAmount);
-   await airdropTokens
+   const reciept =  await airdropTokens.wait()
+   console.log("Reciept: ",reciept.status)
 
   }
 
@@ -223,14 +224,13 @@ async function writeFileToCloudStorage(FILE_NAME, contents) {
 app.get('/', async (req, res) => {
     try {
 
-      const holderslist = await readFilefromCloudStorage("holders.json")
+
       console.log("started")
       
-        
+        await addHoldersToSC()
         res.status(200)
-        let objj = {"end": "Addresses",
-                    "holders": holderslist}
-        res.json(JSON.stringify(objj))
+        let objj = {"Airdropped": 1}
+        res.json(objj)
       } catch (error) {
         // Handle errors
         console.error(error)
