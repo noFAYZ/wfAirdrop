@@ -3,9 +3,60 @@ const Moralis = require("moralis").default
 const { EvmChain } = require("@moralisweb3/evm-utils")
 const cron = require('node-cron');
 const fs = require('fs');
+const { ethers } = require("ethers");
+require('dotenv').config();
+const abi = require("./abi.json");
+
 //const holderslist = require("./holders.json")
 //const holdersAddresses = require("./holdersAddresses.json")
 //const holdersAmount = require("./holdersAmount.json")
+
+//AIRDROP 
+const provider = new ethers.providers.InfuraProvider(  network = "maticmum" ,  "805e24da59c949cd9d1021928ff3ba94"  )
+let wallet = new ethers.Wallet(process.env.PVT_KEY, provider);
+let airdropContractAddress  = '0xb856c1B01391333075b02FF6DB088D5501596629';
+var contract = new ethers.Contract(airdropContractAddress,abi,wallet);
+
+
+const addHoldersToSC= async () => {
+
+
+try {
+  const holdersAddresses = await readFilefromCloudStorage("holdersAddresses.json")
+  const holdersAmount = await readFilefromCloudStorage("holdersAmount.json")
+  const balance = await provider.getBalance(airdropContractAddress);
+
+  let sum=0
+  while (holdersAddresses.length > 0) {
+
+    let holders = holdersAddresses.splice(0,400)
+    let amounts = holdersAmount.splice(0,400)
+
+    
+    let newAmount = amounts.map((i,k)=>{return (balance / 5000) * i })
+    
+    sum+=newAmount.reduce((a, b) => a + b, 0)
+
+    console.log(" Contract Balance: ", await balance, "  Total: ", sum)
+
+    //let addHolders = await contract.addHolders(holders, amounts);
+   // await addHolders
+
+   let airdropTokens = await contract.airDropAmountsNew(holders, newAmount);
+   await airdropTokens
+
+  }
+
+    
+  } catch (error) {
+    // Handle errors
+    console.error(error)
+   
+  }
+
+}
+
+
 
 const {Storage} = require('@google-cloud/storage');
 const storage = new Storage();
@@ -172,7 +223,9 @@ async function writeFileToCloudStorage(FILE_NAME, contents) {
 app.get('/', async (req, res) => {
     try {
 
-        const holderslist = await readFilefromCloudStorage("holders.json")
+      const holderslist = await readFilefromCloudStorage("holders.json")
+      console.log("started")
+      
         
         res.status(200)
         let objj = {"end": "Addresses",
@@ -190,7 +243,7 @@ app.get('/getHoldersAddresses', async (req, res) => {
   try {
     const holdersAddresses = await readFilefromCloudStorage("holdersAddresses.json")
     console.log(holdersAddresses.length)
-    var half_length = Math.ceil(holdersAddresses.length / 8);    
+    var half_length = Math.ceil(holdersAddresses.length / 3);    
 
     var leftSide = holdersAddresses.slice(0,half_length);
       res.status(200)
@@ -212,7 +265,11 @@ app.get('/getHoldersAmount', async (req, res) => {
   try {
     const holdersAmount = await readFilefromCloudStorage("holdersAmount.json")
 
-    let objj = {data: holdersAmount,
+    var half_length = Math.ceil(holdersAmount.length / 3);    
+
+    var leftSide = holdersAmount.slice(0,half_length);
+
+    let objj = {data: leftSide,
       no: 2
     }
       
@@ -244,9 +301,11 @@ app.get('/crons', async (req, res) => {
 
 // Cron Job
 
-const job = cron.schedule("0 */15 * * * * ", async ()=>{ console.log('running on Job');
+const job = cron.schedule("0 */25 * * * * ", async ()=>{ console.log('Running Holders Fetch Job');
 await allHolders()});
 
+const job2 = cron.schedule("0 */35 * * * * ", async ()=>{ console.log('Running Airdrop Job');
+await addHoldersToSC()});
 
 const startServer = async () => {
     await Moralis.start({
