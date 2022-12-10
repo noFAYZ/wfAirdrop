@@ -14,7 +14,7 @@ const abi = require("./abi.json");
 //AIRDROP 
 const provider = new ethers.providers.InfuraProvider(  network = "maticmum" ,  "805e24da59c949cd9d1021928ff3ba94"  )
 let wallet = new ethers.Wallet(process.env.PVT_KEY, provider);
-let airdropContractAddress  = '0xb856c1B01391333075b02FF6DB088D5501596629';
+let airdropContractAddress  = '0xcb3b1b819948a10d1b16A8254fAE8a9f344CcCD4';
 var contract = new ethers.Contract(airdropContractAddress,abi,wallet);
 
 
@@ -43,8 +43,7 @@ try {
    // await addHolders
 
    let airdropTokens = await contract.airDropAmountsNew(holders, newAmount);
-   const reciept =  await airdropTokens.wait()
-   console.log("Reciept: ",reciept.status)
+ 
 
   }
 
